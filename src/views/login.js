@@ -4,14 +4,16 @@ import FormGroup from '../components/form-group'
 import { withRouter } from 'react-router-dom'
 
 import UsuarioService from '../app/service/usuarioService'
-import LocalStorageService from '../app/service/localStorageService'
+
+import { AuthContext } from '../main/provedorAutenticacao'
+
+import { mensagemErro } from '../components/toastr'
 
 class Login extends React.Component{
 
     state = {
         email: '',
-        senha: '',
-        mensagemErro: null
+        senha: ''
     }
 
     constructor(){
@@ -24,10 +26,10 @@ class Login extends React.Component{
             email: this.state.email,
             senha: this.state.senha
         }).then(response => {
-            LocalStorageService.adicionarItem('_usuario_logado', response.data);
+            this.context.iniciarSessao(response.data);
             this.props.history.push('/home');
         }).catch(erro => {
-            this.setState({mensagemErro: erro.response.data})
+            mensagemErro(erro.response.data);
         })
     }
 
@@ -41,9 +43,6 @@ class Login extends React.Component{
                 <div className="col-md-6" style={ {position: 'relative', left: '300px'} }>
                     <div className="bs-docs-section">
                         <Card title="Login">
-                            <div className="row">
-                                <span>{this.state.mensagemErro}</span>
-                            </div>
                             <div className="row">
                                 <div className="col-lg-12">
                                     <div className="bs-component">
@@ -65,8 +64,8 @@ class Login extends React.Component{
                                                     id="exampleInputPassword1" 
                                                     placeholder="Password"/>
                                             </FormGroup>
-                                            <button className="btn btn-success" onClick={this.entrar}>Entrar</button>
-                                            <button className="btn btn-danger" onClick={this.prepareCadastrar}>Cadastrar</button>
+                                            <button className="btn btn-success" onClick={this.entrar}><i className="pi pi-sign-in"></i>Entrar</button>
+                                            <button className="btn btn-danger" onClick={this.prepareCadastrar}><i className="pi pi-plus"></i>Cadastrar</button>
                                         </fieldset>
                                     </div>
                                 </div>
@@ -79,4 +78,6 @@ class Login extends React.Component{
     }
 }
 
-export default withRouter(Login)
+Login.contextType = AuthContext;
+
+export default withRouter(Login);
